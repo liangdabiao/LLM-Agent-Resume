@@ -1,0 +1,29 @@
+# 环境变量与密钥
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# 运行时数据
+chroma_db/
+cache/
+_conn_test_db/
+_it_db/
+data/*.pdf
+*.log
+
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/

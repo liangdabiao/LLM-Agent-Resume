@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>智能简历筛选系统</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>🧠 智能简历筛选系统</h1>
+    <div class="status">
+      后端状态：<span id="health-badge" class="badge badge-unknown">检测中…</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- 左列：上传 + 简历列表 -->
+    <section class="panel">
+      <h2>1. 上传简历</h2>
+      <p class="hint">支持 .txt / .pdf，可一次选择多个文件。</p>
+      <input type="file" id="resume-files" multiple accept=".txt,.pdf,.md" />
+      <button id="upload-btn" class="btn primary">上传</button>
+      <div id="upload-log" class="log"></div>
+
+      <h2>已上传简历 <span id="resume-count" class="muted"></span></h2>
+      <button id="refresh-btn" class="btn">刷新列表</button>
+      <ul id="resume-list" class="resume-list"></ul>
+    </section>
+
+    <!-- 右列：查询 + 结果 -->
+    <section class="panel">
+      <h2>2. 输入岗位需求</h2>
+      <textarea id="query-text" rows="5"
+        placeholder="示例：招聘一名有3年以上经验的Python后端工程师，熟悉FastAPI和分布式系统，本科及以上学历，工作地点北京。"></textarea>
+      <button id="query-btn" class="btn primary">开始筛选</button>
+      <div id="query-log" class="log"></div>
+
+      <h2>3. 筛选结果 <span id="result-meta" class="muted"></span></h2>
+      <div id="results" class="results"></div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

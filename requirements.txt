@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+langchain
+langchain-community
+langchain-core
+langchain-openai
+openai
+chromadb
+pypdf
+python-multipart
+python-dotenv
+pydantic
+diskcache
+loguru
+httpx
+pytest
+pymilvus
