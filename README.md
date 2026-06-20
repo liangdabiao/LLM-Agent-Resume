@@ -570,4 +570,5 @@ A：将前端来源加入 `SERVER_ALLOWED_ORIGINS`（逗号分隔），生产环
 
 如有问题或建议，欢迎提交 Issue 🙌
 
+感谢 https://linux.do 社区支持
 </div>
