@@ -1,0 +1,19 @@
+王五
+求职意向：Python后端开发工程师
+工作地点：北京
+学历：本科 - 信息工程（北京理工大学）
+工作年限：4年
+期望薪资：28k-35k
+
+技能：
+- 熟练使用 Python，深度使用 FastAPI 构建 RESTful API
+- 熟悉分布式系统、消息队列（RabbitMQ、Kafka）
+- 熟悉 PostgreSQL、Redis、Elasticsearch
+- 熟悉 CI/CD、Docker
+
+工作经历：
+2020.03 - 至今  某金融科技公司  后端工程师
+- 基于 FastAPI 搭建风控服务，支撑实时信贷审批
+- 设计分布式限流与熔断方案，保障系统高可用
+
+行业：金融科技

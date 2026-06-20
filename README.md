@@ -62,6 +62,24 @@
 
 ---
 
+## 📸 效果展示（真实运行截图）
+
+> 以下截图来自本地实际运行：上传 3 份真实简历 → 输入自然语言岗位需求 → 调用智谱 `glm-4.7-flashx` + `embedding-3` 完成端到端筛选，结果由浏览器实测截取。
+
+**1. 首页（上传简历 + 输入岗位需求）**
+
+![首页](static/screenshots/01-home.png)
+
+**2. 简历上传后，列表实时刷新**
+
+![简历列表](static/screenshots/02-uploaded-list.png)
+
+**3. 筛选结果：候选人排序 + LLM 逐人分析报告**
+
+![筛选结果](static/screenshots/03-results.png)
+
+---
+
 ## 🚀 快速开始（5 分钟跑通）
 
 ```bash
