@@ -3,12 +3,6 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 
-class UploadResumeRequest(BaseModel):
-    """上传简历请求模型"""
-    filename: str
-    content: str  # Base64编码的文件内容
-
-
 class UploadResumeResponse(BaseModel):
     """上传简历响应模型"""
     resume_id: str

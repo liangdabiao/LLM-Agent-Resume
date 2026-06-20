@@ -17,93 +17,115 @@ class TestScorer:
     def test_calculate_skill_score(self):
         """测试技能匹配得分计算"""
         scorer = Scorer()
-        
-        # 创建模拟简历数据
+
         resume = {
             "metadata": {
                 "skills": ["Python", "Java", "SQL"]
             }
         }
-        
-        # 创建查询元数据
+
         query_metadata = QueryMetadata(
             required_skills=["Python", "SQL"],
             preferred_skills=["Redis"]
         )
-        
-        # 计算技能得分
+
         skill_score = scorer._calculate_skill_score(resume, query_metadata)
-        
-        # 验证结果（必需技能完全匹配，优先技能不匹配）
+
+        # 必需技能完全匹配，优先技能不匹配
         assert skill_score == 0.8  # 0.8 * 1.0 + 0.2 * 0.0
 
-    def test_calculate_industry_score(self):
-        """测试行业领域匹配得分计算"""
+    def test_calculate_skill_score_fuzzy(self):
+        """测试技能模糊匹配"""
         scorer = Scorer()
-        
-        # 创建模拟简历数据
+
+        resume = {
+            "metadata": {
+                "skills": ["Django框架"]
+            }
+        }
+
+        query_metadata = QueryMetadata(
+            required_skills=["Django"]
+        )
+
+        skill_score = scorer._calculate_skill_score(resume, query_metadata)
+        assert skill_score == 1.0
+
+    def test_calculate_industry_score(self):
+        """测试行业领域匹配得分计算（基于工作经历文本子串匹配）"""
+        scorer = Scorer()
+
         resume = {
             "metadata": {
                 "work_experience": [
-                    {"company": "互联网公司"},
-                    {"company": "科技公司"}
+                    {
+                        "company": "ABC科技有限公司",
+                        "title": "互联网产品经理",
+                        "description": "负责互联网金融产品设计"
+                    }
                 ]
             }
         }
-        
-        # 创建查询元数据
+
         query_metadata = QueryMetadata(
-            required_industries=["互联网公司"],
-            preferred_industries=["金融"]
+            required_industries=["互联网"],
+            preferred_industries=["医疗"]
         )
-        
-        # 计算行业得分
+
         industry_score = scorer._calculate_industry_score(resume, query_metadata)
-        
-        # 验证结果（必需行业匹配，优先行业不匹配）
+
+        # 必需行业匹配，优先行业不匹配
         assert industry_score == 0.8  # 0.8 * 1.0 + 0.2 * 0.0
 
     def test_calculate_salary_score(self):
         """测试薪资匹配得分计算"""
         scorer = Scorer()
-        
-        # 创建模拟简历数据
+
         resume = {
             "metadata": {
                 "expected_salary": "20K-30K"
             }
         }
-        
-        # 创建查询元数据
+
         query_metadata = QueryMetadata(
             salary_range={"min": "15K", "max": "35K"}
         )
-        
-        # 计算薪资得分
+
         salary_score = scorer._calculate_salary_score(resume, query_metadata)
-        
-        # 验证结果（期望薪资完全在范围内）
         assert salary_score == 1.0
 
     def test_parse_salary(self):
         """测试薪资解析"""
         scorer = Scorer()
-        
-        # 测试范围格式
+
+        # 范围格式
         min_val, max_val = scorer._parse_salary("20K-30K")
         assert min_val == 20000
         assert max_val == 30000
-        
-        # 测试单个值格式
+
+        # 单个值格式
         min_val, max_val = scorer._parse_salary("25K")
         assert min_val == 25000
         assert max_val == 25000
 
+        # 中文“万”
+        min_val, max_val = scorer._parse_salary("20万-30万")
+        assert min_val == 200000
+        assert max_val == 300000
+
+        min_val, max_val = scorer._parse_salary("25万")
+        assert min_val == 250000
+        assert max_val == 250000
+
+        # 面议
+        min_val, max_val = scorer._parse_salary("面议")
+        assert min_val == 0.0
+        assert max_val == 1000000.0
+
     def test_calculate_education_score(self):
         """测试学历匹配得分计算"""
         scorer = Scorer()
-        
-        # 创建模拟简历数据
+
         resume = {
             "metadata": {
                 "education": [
@@ -111,73 +133,94 @@ class TestScorer:
                 ]
             }
         }
-        
-        # 计算学历得分（要求本科）
+
         education_score = scorer._calculate_education_score(resume, QueryMetadata(required_education="本科"))
         assert education_score == 1.0  # 硕士高于本科要求
-        
-        # 计算学历得分（要求博士）
+
         education_score = scorer._calculate_education_score(resume, QueryMetadata(required_education="博士"))
         assert education_score == 0.75  # 硕士是博士要求的3/4
 
     def test_calculate_location_score(self):
-        """测试地理位置匹配得分计算"""
+        """测试地理位置模糊匹配得分"""
         scorer = Scorer()
-        
-        # 创建模拟简历数据
+
         resume = {
             "metadata": {
                 "preferred_locations": ["北京", "上海", "广州"]
             }
         }
-        
-        # 创建查询元数据
+
         query_metadata = QueryMetadata(
             locations=["北京", "深圳"]
         )
-        
-        # 计算地点得分
-        location_score = scorer._calculate_location_score(resume, query_metadata)
-        
-        # 验证结果（交集1个，并集4个）
-        assert location_score == 0.25  # 1/4
 
-    def test_calculate_tag_score(self):
-        """测试个性标签匹配得分计算"""
+        location_score = scorer._calculate_location_score(resume, query_metadata)
+
+        # “北京”匹配，“深圳”不匹配，得分为 1/2
+        assert location_score == 0.5
+
+    def test_calculate_location_score_fuzzy(self):
+        """测试地点模糊匹配（如“北京”命中“北京市”）"""
         scorer = Scorer()
-        
-        # 创建模拟简历数据
+
         resume = {
             "metadata": {
-                "summary": "python developer with rich big data processing experience"
+                "preferred_locations": ["北京市"]
             }
         }
-        
-        # 创建查询元数据
+
         query_metadata = QueryMetadata(
-            keywords=["python", "big data"]
+            locations=["北京"]
         )
-        
-        # 计算标签得分
+
+        location_score = scorer._calculate_location_score(resume, query_metadata)
+        assert location_score == 1.0
+
+    def test_calculate_tag_score(self):
+        """测试个性标签/关键词匹配得分（中文子串匹配）"""
+        scorer = Scorer()
+
+        resume = {
+            "metadata": {
+                "summary": "具有丰富的大数据处理经验，熟悉Python生态"
+            }
+        }
+
+        query_metadata = QueryMetadata(
+            keywords=["大数据", "Python"]
+        )
+
         tag_score = scorer._calculate_tag_score(resume, query_metadata)
-        
-        # 验证结果接近预期值
-        # 注意：由于分词和处理方式的差异，实际结果可能与预期略有不同
-        # 我们只验证结果是一个有效的分数（0-1之间）
-        assert 0 <= tag_score <= 1
+        assert tag_score == 1.0
+
+    def test_calculate_tag_score_partial(self):
+        """测试关键词部分匹配"""
+        scorer = Scorer()
+
+        resume = {
+            "metadata": {
+                "summary": "Python开发工程师"
+            }
+        }
+
+        query_metadata = QueryMetadata(
+            keywords=["Python", "大数据"]
+        )
+
+        tag_score = scorer._calculate_tag_score(resume, query_metadata)
+        assert tag_score == 0.5
 
     def test_score_resumes(self):
         """测试简历评分功能"""
         scorer = Scorer()
-        
-        # 创建模拟简历数据
+
         resumes = [
             {
                 "id": "resume_001",
                 "metadata": {
                     "skills": ["Python", "Java", "SQL"],
                     "work_experience": [
-                        {"company": "互联网公司"}
+                        {"company": "互联网公司", "title": "后端开发"}
                     ],
                     "education": [
                         {"degree": "本科"}
@@ -188,8 +231,7 @@ class TestScorer:
                 }
             }
         ]
-        
-        # 创建查询元数据
+
         query_metadata = QueryMetadata(
             required_skills=["Python"],
             required_industries=["互联网"],
@@ -198,11 +240,9 @@ class TestScorer:
             salary_range={"min": "15K", "max": "35K"},
             keywords=["Python"]
         )
-        
-        # 执行评分
+
         scored_resumes = scorer.score_resumes(resumes, query_metadata)
-        
-        # 验证结果
+
         assert len(scored_resumes) == 1
         assert "scores" in scored_resumes[0]
         assert "overall_score" in scored_resumes[0]["scores"]

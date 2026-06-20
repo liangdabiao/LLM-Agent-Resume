@@ -48,6 +48,34 @@ class HardFilter:
         ]
         return " ".join(parts).lower()
 
+    @staticmethod
+    def _parse_year(date_str) -> tuple:
+        """健壮地解析日期字符串，返回 (年份, 是否至今)。"""
+        from datetime import datetime
+        import re
+
+        if date_str is None:
+            return None, False
+
+        s = str(date_str).strip().lower()
+        if not s:
+            return None, False
+
+        present_markers = {"至今", "present", "now", "当前", "今", "现在"}
+        if s in present_markers or s.endswith("至今"):
+            return datetime.now().year, True
+
+        m = re.search(r"(\d{4})", s)
+        if m:
+            try:
+                year = int(m.group(1))
+                if 1950 <= year <= datetime.now().year + 1:
+                    return year, False
+            except ValueError:
+                pass
+
+        return None, False
+
     def _matches(self, target: str, candidates: List[Any], fulltext: str = "") -> bool:
         """结构化字段模糊匹配，命中失败时回退到全文子串匹配。"""
         if self._fuzzy_in(target, candidates):
@@ -162,12 +190,18 @@ class HardFilter:
 
                 start_date = exp.get("start_date")
                 end_date = exp.get("end_date")
-                if start_date and end_date:
-                    has_experience_data = True
-                    # 简单计算年份差（实际项目中可能需要更精确的计算）
-                    start_year = int(start_date.split("-")[0]) if "-" in start_date else 0
-                    end_year = int(end_date.split("-")[0]) if "-" in end_date else 2025
-                    total_experience += end_year - start_year
+
+                start_year, _ = self._parse_year(start_date)
+                if start_year is None:
+                    continue
+
+                has_experience_data = True
+                end_year, _ = self._parse_year(end_date)
+                if end_year is None:
+                    from datetime import datetime
+                    end_year = datetime.now().year
+
+                total_experience += max(0, end_year - start_year)
 
             # 若简历缺少可解析的经验数据，则不在此条件上误杀（数据缺失 != 不满足）；
             # 若有数据但年限不足，则按硬性条件过滤。

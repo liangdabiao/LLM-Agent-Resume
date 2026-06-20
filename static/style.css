@@ -169,9 +169,32 @@ textarea { resize: vertical; }
   font-size: 13px;
   line-height: 1.6;
   margin-top: 8px;
-  white-space: pre-wrap;
   border-top: 1px dashed var(--border);
   padding-top: 8px;
+}
+.analysis h4 {
+  font-size: 14px;
+  margin: 10px 0 6px;
+  color: var(--text);
+}
+.analysis p {
+  margin: 6px 0;
+}
+.analysis ul, .analysis ol {
+  margin: 6px 0 6px 18px;
+  padding: 0;
+}
+.analysis li {
+  margin: 4px 0;
+}
+.analysis strong {
+  color: var(--primary-dark);
+}
+.analysis code {
+  background: #f0f0f0;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: monospace;
 }
 .spinner { color: var(--primary); font-size: 14px; }
 .empty { color: var(--muted); font-size: 14px; }
