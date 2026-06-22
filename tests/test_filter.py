@@ -253,6 +253,47 @@ class TestHardFilter:
         assert len(filtered_resumes) == 1
         assert filtered_resumes[0]["id"] == "resume_001"
 
+    def test_parse_year(self):
+        """测试日期年份解析"""
+        from datetime import datetime
+        filter_obj = HardFilter()
+
+        assert filter_obj._parse_year("2020-01") == (2020, False)
+        assert filter_obj._parse_year("2020/06") == (2020, False)
+        assert filter_obj._parse_year("2020年6月") == (2020, False)
+        assert filter_obj._parse_year("2020") == (2020, False)
+        assert filter_obj._parse_year("至今") == (datetime.now().year, True)
+        assert filter_obj._parse_year("present") == (datetime.now().year, True)
+        assert filter_obj._parse_year("") == (None, False)
+        assert filter_obj._parse_year(None) == (None, False)
+
+    def test_filter_by_experience_present(self):
+        """测试经验过滤对‘至今’的处理"""
+        filter_obj = HardFilter()
+
+        resumes = [
+            {
+                "id": "resume_001",
+                "metadata": {
+                    "work_experience": [
+                        {"start_date": "2020-01", "end_date": "至今"}
+                    ]
+                }
+            },
+            {
+                "id": "resume_002",
+                "metadata": {
+                    "work_experience": [
+                        {"start_date": "2025-01", "end_date": "至今"}
+                    ]
+                }
+            }
+        ]
+
+        filtered_resumes = filter_obj._filter_by_experience(resumes, 4)
+        assert len(filtered_resumes) == 1
+        assert filtered_resumes[0]["id"] == "resume_001"
+
 
 if __name__ == "__main__":
     pytest.main([__file__])
